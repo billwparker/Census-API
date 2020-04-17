@@ -6,9 +6,6 @@ from config import CENSUS_API_KEY
 from flask import Flask, jsonify
 
 
-#################################################
-# Flask Setup
-#################################################
 app = Flask(__name__)
 
 #################################################
@@ -23,16 +20,10 @@ def welcome():
         f"/api/v1.0/poverty/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;"
     )
 
-
 '''
-Get the poverty rate at a latitude/longitude in a census tract
-Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
-Census tracts contain between 2,500 to 8,000
-'''
-@app.route("/api/v1.0/poverty/<float:latitude>/<float:longitude>")
-def poverty_rate(latitude=None, longitude=None):
-
-    # Get FIPS information from FCC
+ Get FIPS information from FCC
+ '''
+def get_fips_information(latitude, longitude):
     params = {
         "format": "json",
         "showall": "true",
@@ -47,17 +38,31 @@ def poverty_rate(latitude=None, longitude=None):
 
     fcc_data = response.json()
 
-    state_code = fcc_data["State"]["FIPS"];
-    county_code = fcc_data["County"]["FIPS"][2:5];
-    tract_code = fcc_data["Block"]["FIPS"][5:11];
+    l = {}
 
+    l["state_code"] = fcc_data["State"]["FIPS"];
+    l["county_code"] = fcc_data["County"]["FIPS"][2:5];
+    l["tract_code"] = fcc_data["Block"]["FIPS"][5:11];
+
+    return l
+
+
+'''
+Get the poverty rate at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000
+'''
+@app.route("/api/v1.0/poverty/<float:latitude>/<float:longitude>")
+def poverty_rate(latitude=None, longitude=None):
+
+    l = get_fips_information(latitude, longitude)
 
     # Get census data based on FIPs code
     params = {
         "key": CENSUS_API_KEY,
         "get": "B17001_001E,B17001_002E",
-        "for": "tract:" + tract_code,
-        "in": "state:" + state_code + "+county:" + county_code
+        "for": "tract:" + l["tract_code"],
+        "in": "state:" + l["state_code"] + "+county:" + l["county_code"]
     }
 
     base_ACS5 = "/2018/acs/acs5"
@@ -83,7 +88,6 @@ def poverty_rate(latitude=None, longitude=None):
         "poverate_rate": pov_rate
     }
 
-    #return jsonify(census_data)
     return jsonify(r)
 
     # print(json.dumps(census_data, indent=4, sort_keys=True))
