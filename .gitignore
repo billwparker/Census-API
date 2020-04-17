@@ -5,6 +5,7 @@ __pycache__/
 
 config.py
 .gitignore
+notes.txt
 
 # C extensions
 *.so
