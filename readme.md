@@ -2,10 +2,10 @@
 
 **Python Flask API**
 
-API that can give statitics for a latitude/longitude.
+API that can give statistics for a latitude/longitude.
 
 
-Uses FCC API to turn latitude/longitude into a US Census FIPs code.
+Uses FCC API to turn latitude/longitude into a US Census FIPs code. Uses Census api.
 
 Census tracts contain between 2,500 to 8,000 people.
 
