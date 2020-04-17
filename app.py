@@ -16,8 +16,11 @@ app = Flask(__name__)
 def welcome():
     """List all available api routes."""
     return (
-        f"Available Routes:<br/>"
-        f"/api/v1.0/poverty/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;"
+        f"Available Routes:<br/><br/>"
+        f"Get poverty rate: for latitude/longitude<br/>"
+        f"/api/v1.0/poverty/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
+        f"Get population density (per square mile): for latitude/longitude<br/>"
+        f"/api/v1.0/population/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
     )
 
 '''
@@ -81,8 +84,6 @@ def poverty_rate(latitude=None, longitude=None):
     else:
         pov_rate = 0.0
 
-    print(pov_rate)
-
     r = {
         "Status": "Ok",
         "poverate_rate": pov_rate
@@ -90,18 +91,6 @@ def poverty_rate(latitude=None, longitude=None):
 
     return jsonify(r)
 
-    # print(json.dumps(census_data, indent=4, sort_keys=True))
-
-    # baseParams = {
-    #     "key": CENSUS_API_KEY,
-    #     "get": "LAND_AREA",
-    #     "for": "tract:" + ld.tract,
-    #     "in": "state:" + ld.stateCode + "+county:" + ld.countyCode
-    # }
-
-    # base_PDB  = "/2018/pdb/tract"
-
-    # return census_data
 
 '''
 Get the population density at a latitude/longitude in a census tract
@@ -110,7 +99,59 @@ Census tracts contain between 2,500 to 8,000
 '''
 @app.route("/api/v1.0/population/<float:latitude>/<float:longitude>")
 def population_density(latitude=None, longitude=None):
-    pass
+
+    l = get_fips_information(latitude, longitude)
+
+    # Get census data based on FIPs code
+    params = {
+        "key": CENSUS_API_KEY,
+        "get": "B17001_001E",
+        "for": "tract:" + l["tract_code"],
+        "in": "state:" + l["state_code"] + "+county:" + l["county_code"]
+    }
+
+    base_ACS5 = "/2018/acs/acs5"
+    base_url = "https://api.census.gov/data"
+
+    response = requests.get(base_url + base_ACS5, params=params)
+
+    census_data = response.json()
+
+    a = census_data
+    population = float(a[1][0])
+
+    params = {
+        "key": CENSUS_API_KEY,
+        "get": "LAND_AREA",
+        "for": "tract:" + l["tract_code"],
+        "in": "state:" + l["state_code"] + "+county:" + l["county_code"]
+    }
+
+    base_PDB  = "/2018/pdb/tract"
+    base_url = "https://api.census.gov/data"
+
+    response = requests.get(base_url + base_PDB, params=params)
+
+    census_data = response.json()
+
+    # square miles
+    a = census_data
+    land_area = float(a[1][0])
+
+    #print(",".join(a[0]))
+    #print(",".join(a[1]))
+
+    if float(land_area) > 0.0:
+        pop_density = population / land_area
+    else:
+        pop_density = 0.0
+
+    r = {
+        "Status": "Ok",
+        "population_density": pop_density
+    }
+
+    return jsonify(r)
 
 
 '''
