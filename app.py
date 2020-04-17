@@ -23,6 +23,8 @@ def welcome():
         f"/api/v1.0/population/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
         f"Get diversity index (probability of two people being of a different race): for latitude/longitude<br/>"
         f"/api/v1.0/population/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
+        f"Get summary: for latitude/longitude<br/>"
+        f"/api/v1.0/summary/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
     )
 
 '''

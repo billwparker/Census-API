@@ -21,6 +21,6 @@ Example:
 Example:
 /api/v1.0/diversity/latitude/longitude
 
-* Gets the summary in a census tract.  
+* Gets the summary at a latitude/longitude in a census tract.  
 Example:
 /api/v1.0/summary/latitude/longitude
