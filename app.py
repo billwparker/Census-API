@@ -51,17 +51,7 @@ def get_fips_information(latitude, longitude):
 
     return l
 
-
-'''
-Get the poverty rate at a latitude/longitude in a census tract
-Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
-Census tracts contain between 2,500 to 8,000 people
-'''
-@app.route("/api/v1.0/poverty/<float:latitude>/<float:longitude>")
-def poverty_rate(latitude=None, longitude=None):
-
-    l = get_fips_information(latitude, longitude)
-
+def get_poverty_rate(l):
     # Get census data based on FIPs code
     params = {
         "key": CENSUS_API_KEY,
@@ -86,24 +76,30 @@ def poverty_rate(latitude=None, longitude=None):
     else:
         pov_rate = 0.0
 
+    return pov_rate
+
+
+
+'''
+Get the poverty rate at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000 people
+'''
+@app.route("/api/v1.0/poverty/<float:latitude>/<float:longitude>")
+def poverty_rate(latitude=None, longitude=None):
+
+    l = get_fips_information(latitude, longitude)
+
+    pov_rate = get_poverty_rate(l)
+
     r = {
         "Status": "Ok",
-        "poverate_rate": pov_rate
+        "poverty_rate": pov_rate
     }
 
     return jsonify(r)
 
-
-'''
-Get the population density at a latitude/longitude in a census tract
-Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
-Census tracts contain between 2,500 to 8,000 people
-'''
-@app.route("/api/v1.0/population/<float:latitude>/<float:longitude>")
-def population_density(latitude=None, longitude=None):
-
-    l = get_fips_information(latitude, longitude)
-
+def get_population_density(l):
     # Get census data based on FIPs code
     params = {
         "key": CENSUS_API_KEY,
@@ -148,6 +144,20 @@ def population_density(latitude=None, longitude=None):
     else:
         pop_density = 0.0
 
+    return pop_density
+
+'''
+Get the population density at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000 people
+'''
+@app.route("/api/v1.0/population/<float:latitude>/<float:longitude>")
+def population_density(latitude=None, longitude=None):
+
+    l = get_fips_information(latitude, longitude)
+
+    pop_density = get_population_density(l)
+
     r = {
         "Status": "Ok",
         "population_density": pop_density
@@ -165,16 +175,8 @@ Census tracts contain between 2,500 to 8,000
 def education_level(latitude=None, longitude=None):
     pass
 
-'''
-Get the diversity index at a latitude/longitude in a census tract
-Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
-Census tracts contain between 2,500 to 8,000
-'''
-@app.route("/api/v1.0/diversity/<float:latitude>/<float:longitude>")
-def diversity_index(latitude=None, longitude=None):
 
-    l = get_fips_information(latitude, longitude)
-
+def get_diversity_index(l):
     # B02001_001E: Total
     # B02001_002E: White alone
     # B02001_003E: Black or African American alone
@@ -218,9 +220,45 @@ def diversity_index(latitude=None, longitude=None):
     print(",".join(a[0]))
     print(",".join(a[1]))
 
+    return 1 - homogeneity
+
+'''
+Get the diversity index at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000
+'''
+@app.route("/api/v1.0/diversity/<float:latitude>/<float:longitude>")
+def diversity_index(latitude=None, longitude=None):
+
+    l = get_fips_information(latitude, longitude)
+
+    diversity = get_diversity_index(l)
+
     r = {
         "Status": "Ok",
-        "diversity_index": 1-homogeneity,
+        "diversity_index": diversity
+    }
+
+    return jsonify(r)
+
+'''
+Get a summary at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000
+'''
+@app.route("/api/v1.0/summary/<float:latitude>/<float:longitude>")
+def summary(latitude=None, longitude=None):
+    l = get_fips_information(latitude, longitude)
+
+    pov_rate = get_poverty_rate(l)
+    pop_density = get_population_density(l)
+    diversity = get_diversity_index(l)
+
+    r = {
+        "Status": "Ok",
+        "diversity_index": diversity,
+        "poverty_rate": pov_rate,
+        "population_density": pop_density
     }
 
     return jsonify(r)

@@ -20,3 +20,7 @@ Example:
 * Get the diversity index (probability of two people being of a different race) at a latitude/longitude in a census tract.  
 Example:
 /api/v1.0/diversity/latitude/longitude
+
+* Gets the summary in a census tract.  
+Example:
+/api/v1.0/summary/latitude/longitude
