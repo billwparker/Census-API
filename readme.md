@@ -6,7 +6,7 @@ API that can give statistics for any latitude/longitude in the United States.
 
 Uses FCC API to turn latitude/longitude into a US Census FIPs code. Then uses Census api. Census tracts contain between 2,500 to 8,000 people.
 
-* Get the poverty rate at a latitude/longitude in a census tract.  
+* Get the poverty rate (percentage) at a latitude/longitude in a census tract.  
 Example:
 /api/v1.0/poverty?lat=[Latuditude]&lon=[Longitude]
 
