@@ -20,7 +20,7 @@ def welcome():
         f"Get poverty rate: for latitude/longitude<br/>"
         f"/api/v1.0/poverty?lat=latitude&lon=longitude<br/><br/>"
         f"Get population density (per square mile): for latitude/longitude<br/>"
-        f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
+        f"/api/v1.0/population_density?lat=latitude&lon=longitude<br/><br/>"
         f"Get diversity index (probability of two people being of a different race): for latitude/longitude<br/>"
         f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
         f"/api/v1.0/housing_units?lat=latitude&lon=longitude<br/><br/>"
@@ -170,7 +170,7 @@ Get the population density at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000 people
 '''
-@app.route("/api/v1.0/population")
+@app.route("/api/v1.0/population_density")
 def population_density():
 
     if 'lat' in request.args:

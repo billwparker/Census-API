@@ -12,7 +12,7 @@ Example:
 
 * Get the population density (per square mile) at a latitude/longitude in a census tract.  
 Example:
-/api/v1.0/population?lat=[Latuditude]&lon=[Longitude]
+/api/v1.0/population_density?lat=[Latuditude]&lon=[Longitude]
 
 * Get the diversity index (probability of two people being of a different race) at a latitude/longitude in a census tract.  
 Example:
