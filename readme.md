@@ -18,10 +18,13 @@ Example:
 Example:
 /api/v1.0/diversity?lat=[Latuditude]&lon=[Longitude]
 
+* Get housing units as a proportion at a latitude/longitude in a census tract.  
+Example:
+/api/v1.0/housing_units?lat=[Latuditude]&lon=[Longitude]
+
 * Gets the summary at a latitude/longitude in a census tract.  
 Example:
 /api/v1.0/summary?lat=[Latuditude]&lon=[Longitude]
-
 
 |Parameters|Description|
 |-----|-----------|

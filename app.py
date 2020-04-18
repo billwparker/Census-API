@@ -23,6 +23,7 @@ def welcome():
         f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
         f"Get diversity index (probability of two people being of a different race): for latitude/longitude<br/>"
         f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
+        f"/api/v1.0/housing_units?lat=latitude&lon=longitude<br/><br/>"
         f"Get summary: for latitude/longitude<br/>"
         f"/api/v1.0/summary?lat=latitude&lon=longitude<br/><br/>"
     )
@@ -205,10 +206,89 @@ Get the education level at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000 people
 '''
-@app.route("/api/v1.0/education/<float:latitude>/<float:longitude>")
+@app.route("/api/v1.0/education")
 def education_level(latitude=None, longitude=None):
     pass
 
+def get_housing_units(l):
+    params = {
+        "key": CENSUS_API_KEY,
+        "get": "B25024_002E,B25024_003E,B25024_004E,B25024_005E,B25024_006E,B25024_007E,B25024_008E,B25024_009E,B25024_010E,B25024_011E",
+        "for": "tract:" + l["tract_code"],
+        "in": "state:" + l["state_code"] + "+county:" + l["county_code"]
+    }
+
+    base_ACS5 = "/2018/acs/acs5"
+    base_url = "https://api.census.gov/data"
+
+    response = requests.get(base_url + base_ACS5, params=params)
+
+    census_data = response.json()
+
+    a = census_data
+
+    total = float(a[1][0]) + float(a[1][1]) + float(a[1][2]) + float(a[1][3]) + float(a[1][4])\
+         + float(a[1][5]) + float(a[1][6]) + float(a[1][7]) + float(a[1][8]) + float(a[1][9]) + float(a[1][10])
+
+    units = []
+    if total > 0:
+        units.append((float(a[1][0]) + float(a[1][1])) / total)
+
+    for i in range(2, 11):
+
+        if total > 0:
+            units.append(float(a[1][i]) / total)
+        else:
+            units.append(0)
+
+    housing = {
+        "1": units[0],
+        "2": units[1],
+        "3 to 4": units[2],
+        "5 to 9": units[3],
+        "10 - 19": units[4],
+        "20 - 49": units[5],
+        "50 or more": units[6],
+        "mobile home": units[7],
+        "boat, RV, van, etc": units[8]
+    }
+
+    return housing
+
+'''
+Get the number of housing rooms at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000 people
+'''
+@app.route("/api/v1.0/housing_units")
+def housing_units():
+
+    if 'lat' in request.args:
+          latitude = float(request.args['lat'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: latitude" 
+        })
+
+    if 'lon' in request.args:
+        longitude = float(request.args['lon'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: longitude" 
+        })
+
+    l = get_fips_information(latitude, longitude)
+
+    units = get_housing_units(l)
+
+    r = {
+        "Status": "Ok",
+        "units (proportion)": units
+    }
+
+    return jsonify(r)
 
 def get_diversity_index(l):
     # B02001_001E: Total
@@ -251,8 +331,8 @@ def get_diversity_index(l):
 
     homogeneity = (float(a[1][0])/total)**2 + (float(a[1][1])/total)**2 + (float(a[1][2])/total)**2 + (float(a[1][3])/total)**2 + (float(a[1][4])/total)**2 + (float(a[1][5])/total)**2 + (float(a[1][6])/total)**2 + (float(a[1][7])/total)**2 + (float(a[1][8])/total)**2
 
-    print(",".join(a[0]))
-    print(",".join(a[1]))
+    #print(",".join(a[0]))
+    #print(",".join(a[1]))
 
     return 1 - homogeneity
 
