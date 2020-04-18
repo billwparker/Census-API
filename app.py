@@ -3,7 +3,7 @@ import requests
 import json
 from config import CENSUS_API_KEY
 
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 
 
 app = Flask(__name__)
@@ -18,13 +18,13 @@ def welcome():
     return (
         f"Available Routes:<br/><br/>"
         f"Get poverty rate: for latitude/longitude<br/>"
-        f"/api/v1.0/poverty/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
+        f"/api/v1.0/poverty?lat=latitude&lon=longitude<br/><br/>"
         f"Get population density (per square mile): for latitude/longitude<br/>"
-        f"/api/v1.0/population/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
+        f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
         f"Get diversity index (probability of two people being of a different race): for latitude/longitude<br/>"
-        f"/api/v1.0/population/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
+        f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
         f"Get summary: for latitude/longitude<br/>"
-        f"/api/v1.0/summary/&lt;float:latitude&gt;/&lt;float:longitude><br/&gt;<br/><br/>"
+        f"/api/v1.0/summary?lat=latitude&lon=longitude<br/><br/>"
     )
 
 '''
@@ -87,8 +87,24 @@ Get the poverty rate at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000 people
 '''
-@app.route("/api/v1.0/poverty/<float:latitude>/<float:longitude>")
-def poverty_rate(latitude=None, longitude=None):
+@app.route("/api/v1.0/poverty")
+def poverty_rate():
+
+    if 'lat' in request.args:
+          latitude = float(request.args['lat'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: latitude" 
+        })
+
+    if 'lon' in request.args:
+        longitude = float(request.args['lon'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: longitude" 
+        })
 
     l = get_fips_information(latitude, longitude)
 
@@ -153,8 +169,24 @@ Get the population density at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000 people
 '''
-@app.route("/api/v1.0/population/<float:latitude>/<float:longitude>")
-def population_density(latitude=None, longitude=None):
+@app.route("/api/v1.0/population")
+def population_density():
+
+    if 'lat' in request.args:
+          latitude = float(request.args['lat'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: latitude" 
+        })
+
+    if 'lon' in request.args:
+        longitude = float(request.args['lon'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: longitude" 
+        })
 
     l = get_fips_information(latitude, longitude)
 
@@ -171,7 +203,7 @@ def population_density(latitude=None, longitude=None):
 '''
 Get the education level at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
-Census tracts contain between 2,500 to 8,000
+Census tracts contain between 2,500 to 8,000 people
 '''
 @app.route("/api/v1.0/education/<float:latitude>/<float:longitude>")
 def education_level(latitude=None, longitude=None):
@@ -229,8 +261,25 @@ Get the diversity index at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000
 '''
-@app.route("/api/v1.0/diversity/<float:latitude>/<float:longitude>")
-def diversity_index(latitude=None, longitude=None):
+@app.route("/api/v1.0/diversity")
+def diversity_index():
+
+    if 'lat' in request.args:
+          latitude = float(request.args['lat'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: latitude" 
+        })
+
+    if 'lon' in request.args:
+        longitude = float(request.args['lon'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: longitude" 
+        })
+
 
     l = get_fips_information(latitude, longitude)
 
@@ -243,13 +292,32 @@ def diversity_index(latitude=None, longitude=None):
 
     return jsonify(r)
 
+
 '''
 Get a summary at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000
 '''
-@app.route("/api/v1.0/summary/<float:latitude>/<float:longitude>")
-def summary(latitude=None, longitude=None):
+@app.route("/api/v1.0/summary")
+def summary():
+
+    if 'lat' in request.args:
+        latitude = float(request.args['lat'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: latitude" 
+        })
+
+    if 'lon' in request.args:
+        longitude = float(request.args['lon'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: longitude" 
+        })
+
+
     l = get_fips_information(latitude, longitude)
 
     pov_rate = get_poverty_rate(l)
