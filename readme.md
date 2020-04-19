@@ -1,4 +1,4 @@
-# Census API
+# Location API
 
 **Python Flask API**
 
