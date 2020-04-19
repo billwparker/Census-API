@@ -227,8 +227,9 @@ def get_housing_units(l):
 
     a = census_data
 
-    total = float(a[1][0]) + float(a[1][1]) + float(a[1][2]) + float(a[1][3]) + float(a[1][4])\
-         + float(a[1][5]) + float(a[1][6]) + float(a[1][7]) + float(a[1][8]) + float(a[1][9]) + float(a[1][10])
+    total = 0
+    for i in range(11):
+        total += float(a[1][i])
 
     units = []
     if total > 0:
@@ -327,9 +328,13 @@ def get_diversity_index(l):
 
     a = census_data
 
-    total = float(a[1][0]) + float(a[1][1]) + float(a[1][2]) + float(a[1][3]) + float(a[1][4]) + float(a[1][5]) + float(a[1][6]) + float(a[1][7])  + float(a[1][8])
+    total = 0
+    for i in range(9):
+        total += float(a[1][i])
 
-    homogeneity = (float(a[1][0])/total)**2 + (float(a[1][1])/total)**2 + (float(a[1][2])/total)**2 + (float(a[1][3])/total)**2 + (float(a[1][4])/total)**2 + (float(a[1][5])/total)**2 + (float(a[1][6])/total)**2 + (float(a[1][7])/total)**2 + (float(a[1][8])/total)**2
+    homogeneity = 0
+    for i in range(9):
+        homogeneity += (float(a[1][i])/total)**2
 
     #print(",".join(a[0]))
     #print(",".join(a[1]))
