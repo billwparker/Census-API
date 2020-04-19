@@ -23,7 +23,10 @@ def welcome():
         f"/api/v1.0/population_density?lat=latitude&lon=longitude<br/><br/>"
         f"Get diversity index (probability of two people being of a different race): for latitude/longitude<br/>"
         f"/api/v1.0/population?lat=latitude&lon=longitude<br/><br/>"
+        f"Get housing units (percentage): for latitude/longitude<br/>"
         f"/api/v1.0/housing_units?lat=latitude&lon=longitude<br/><br/>"
+        f"Get education level (percentage): for latitude/longitude<br/>"
+        f"/api/v1.0/education?lat=latitude&lon=longitude<br/><br/>"
         f"Get summary: for latitude/longitude<br/>"
         f"/api/v1.0/summary?lat=latitude&lon=longitude<br/><br/>"
     )
@@ -200,6 +203,49 @@ def population_density():
 
     return jsonify(r)
 
+def get_education_level(l):
+    params = {
+        "key": CENSUS_API_KEY,
+        "get": "B15003_017E,B15003_018E,B15003_019E,B15003_020E,B15003_021E,B15003_022E,B15003_023E,B15003_024E,B15003_025E",
+        "for": "tract:" + l["tract_code"],
+        "in": "state:" + l["state_code"] + "+county:" + l["county_code"]
+    }
+
+    base_ACS5 = "/2018/acs/acs5"
+    base_url = "https://api.census.gov/data"
+
+    response = requests.get(base_url + base_ACS5, params=params)
+
+    census_data = response.json()
+
+    a = census_data
+
+    #print(",".join(a[0]))
+    #print(",".join(a[1]))
+
+    high_school = float(a[1][0]) + float(a[1][1])
+    some_college = float(a[1][2]) + float(a[1][3]) + float(a[1][4])
+    bachelors = float(a[1][5])
+    graduates = float(a[1][6]) + float(a[1][7]) + float(a[1][8])
+
+    total = high_school + some_college + bachelors + graduates
+
+    high_school_per = some_college_per = bachelors_per = graduates_per = 0
+    if total > 0:
+        high_school_per = (100.0 * high_school) / total
+        some_college_per = 100.0 * some_college / total
+        bachelors_per = 100.0 * bachelors / total
+        graduates_per = 100.0 * graduates / total
+
+    education = {
+        "high school": high_school_per,
+        "some college": some_college_per,
+        "bachelors": bachelors_per,
+        "graduates": graduates_per
+    }
+
+    return education
+
 
 '''
 Get the education level at a latitude/longitude in a census tract
@@ -208,7 +254,45 @@ Census tracts contain between 2,500 to 8,000 people
 '''
 @app.route("/api/v1.0/education")
 def education_level(latitude=None, longitude=None):
-    pass
+
+    #High school
+    #B15003_017E + B15003_018E 
+
+    #Some college
+    #B15003_019E + B15003_020E  + B15003_021E 
+
+    #Bachelors
+    #B15003_022E
+
+    #Graduate Degree
+    #B15003_023E + B15003_024E  + B15003_025E 
+
+    if 'lat' in request.args:
+          latitude = float(request.args['lat'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: latitude" 
+        })
+
+    if 'lon' in request.args:
+        longitude = float(request.args['lon'])
+    else:
+        return jsonify({
+            "Status": "Error",
+            "Message": "Missing parameter: longitude" 
+        })
+
+    l = get_fips_information(latitude, longitude)
+
+    levels = get_education_level(l)
+
+    r = {
+        "Status": "Ok",
+        "education": levels
+    }
+
+    return jsonify(r)
 
 def get_housing_units(l):
     params = {
@@ -233,12 +317,11 @@ def get_housing_units(l):
 
     units = []
     if total > 0:
-        units.append((float(a[1][0]) + float(a[1][1])) / total)
+        units.append(100 * (float(a[1][0]) + float(a[1][1])) / total)
 
     for i in range(2, 11):
-
         if total > 0:
-            units.append(float(a[1][i]) / total)
+            units.append(100 * float(a[1][i]) / total)
         else:
             units.append(0)
 
@@ -257,7 +340,7 @@ def get_housing_units(l):
     return housing
 
 '''
-Get the number of housing rooms at a latitude/longitude in a census tract
+Get the number of housing units at a structure at a latitude/longitude in a census tract
 Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
 Census tracts contain between 2,500 to 8,000 people
 '''
