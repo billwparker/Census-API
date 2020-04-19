@@ -369,7 +369,7 @@ def housing_units():
 
     r = {
         "Status": "Ok",
-        "units (proportion)": units
+        "units": units
     }
 
     return jsonify(r)
