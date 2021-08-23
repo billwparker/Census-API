@@ -14,7 +14,8 @@ Example:
 Example:
 /api/v1.0/population_density?lat=[Latuditude]&lon=[Longitude]
 
-* Get the diversity index (probability of two people being of a different race) at a latitude/longitude in a census tract.  
+* Get the diversity index (probability of two people being of a different race) at a latitude/longitude in a census tract. 
+* High scores close to 1 indicate higher diversity 
 Example:
 /api/v1.0/diversity?lat=[Latuditude]&lon=[Longitude]
 
@@ -25,6 +26,19 @@ Example:
 * Get education level as a percentage at a latitude/longitude in a census tract.  
 Example:
 /api/v1.0/education?lat=[Latuditude]&lon=[Longitude]
+
+* Get gender as a percentage at a latitude/longitude in a census tract.  
+Example:
+/api/v1.0/gender?lat=[Latuditude]&lon=[Longitude]
+
+* Get average age at a latitude/longitude in a census tract.  
+Example:
+/api/v1.0/age?lat=[Latuditude]&lon=[Longitude]
+
+* Get healthcare coverage (overall, medicare, medicaid, tricare) as percentages at a latitude/longitude in a census tract.  
+Example:
+/api/v1.0/insurance?lat=[Latuditude]&lon=[Longitude]
+
 
 * Gets the summary at a latitude/longitude in a census tract.  
 Example:
@@ -41,7 +55,7 @@ Example:
 **Response:**
 {
   "Status": "Ok", 
-  "diversity_index": 0.5990012104551553, 
-  "population_density": 12980.349344978165, 
-  "poverty_rate": 11.387720773759462
+  "diversity_index": 0.599, 
+  "population_density": 12980.35, 
+  "poverty_rate": 11.39
 }
