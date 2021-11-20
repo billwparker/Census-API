@@ -6,6 +6,7 @@ __pycache__/
 config.py
 .gitignore
 notes.txt
+example_thread.py
 
 # C extensions
 *.so

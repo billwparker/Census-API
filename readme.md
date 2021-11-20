@@ -10,6 +10,10 @@ Uses FCC API to turn latitude/longitude into a US Census FIPs code. Then uses Ce
 Example:
 /api/v1.0/poverty?lat=[Latuditude]&lon=[Longitude]
 
+* Get the income at a latitude/longitude in a census tract.  
+Example:
+/api/v1.0/income?lat=[Latuditude]&lon=[Longitude]
+
 * Get the population density (per square mile) at a latitude/longitude in a census tract.  
 Example:
 /api/v1.0/population_density?lat=[Latuditude]&lon=[Longitude]
@@ -56,6 +60,7 @@ Example:
 {
   "Status": "Ok", 
   "diversity_index": 0.599, 
+  "income": 55000,
   "population_density": 12980.35, 
   "poverty_rate": 11.39
 }

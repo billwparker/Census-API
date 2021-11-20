@@ -19,6 +19,8 @@ def welcome():
         f"Available Routes:<br/><br/>"
         f"Get poverty rate: for latitude/longitude<br/>"
         f"/api/v1.0/poverty?lat=latitude&lon=longitude<br/><br/>"
+        f"Get income: for latitude/longitude<br/>"
+        f"/api/v1.0/income?lat=latitude&lon=longitude<br/><br/>"
         f"Get population density (per square mile): for latitude/longitude<br/>"
         f"/api/v1.0/population_density?lat=latitude&lon=longitude<br/><br/>"
         f"Get diversity index (probability of two people being of a different race): for latitude/longitude<br/>"
@@ -128,6 +130,55 @@ def poverty_rate():
     }
 
     return jsonify(r)
+
+
+def get_income(l):
+   
+    income = "B19013_001E"
+ 
+    get_vars = f'{income}'
+ 
+    params = {
+        "key": CENSUS_API_KEY,
+        "get": get_vars,
+        "for": "tract:" + l["tract_code"],
+        "in": "state:" + l["state_code"] + "+county:" + l["county_code"]
+    }
+ 
+    base_ACS5 = "/2019/acs/acs5"
+    base_url = "https://api.census.gov/data"
+ 
+    response = requests.get(base_url + base_ACS5, params=params)
+ 
+    census_data = response.json()
+ 
+    a = census_data
+ 
+    median_income = float(a[1][0])
+ 
+    if median_income < 0:
+        median_income = 0
+ 
+    return median_income
+
+'''
+Get the income at a latitude/longitude in a census tract
+Uses FCC API to first turn latitude/longitude into a FIPS code then calls census for that FIPS code
+Census tracts contain between 2,500 to 8,000 people
+'''
+@app.route("/api/v1.0/income")
+def income(latitude, longitude):
+ 
+    l = get_fips_information(latitude, longitude)
+ 
+    inc = get_income(l)
+ 
+    r = {
+        "Status": "Ok",
+        "income": inc
+    }
+ 
+    return r
 
 def get_population_density(l):
     # Get census data based on FIPs code
@@ -912,11 +963,13 @@ def summary():
     pov_rate = get_poverty_rate(l)
     pop_density = get_population_density(l)
     diversity = get_diversity_index(l)
+    income = get_income(l)
 
     r = {
         "Status": "Ok",
         "diversity_index": diversity,
         "poverty_rate": pov_rate,
+        "income": income,
         "population_density": pop_density
     }
 
